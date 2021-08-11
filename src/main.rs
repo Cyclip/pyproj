@@ -4,6 +4,7 @@ mod create; // create subcommand
 use std::option::Option::{Some, None};
 use std::env;
 use std::result::Result;
+use std::fs;
 
 /// Identify whether a string is valid and has no conflicting names
 fn validate_name(s: &str) -> bool {
@@ -24,7 +25,11 @@ fn cmd_create(args: &mut std::env::Args) {
             if validate_name(&val) {
                 match create::create_project(&val) {
                     Result::Ok(proj_name) => {println!("Successfully created project at ./{}", proj_name);},
-                    Result::Err(err) => {println!("Error while creating project: {}", err);}
+                    Result::Err(err) => {
+                        println!("Error while creating project: {}", err);
+                        // remove dir
+                        fs::remove_dir_all(&val).unwrap();
+                    }
                 }
             } else {
                 println!("Invalid project name '{}'", val);
