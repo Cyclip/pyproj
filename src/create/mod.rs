@@ -74,6 +74,8 @@ fn setup_files(project_name: &str) {
     files.insert(format!("{proj}/.gitignore", proj=project_name), file_constants::FILE_GITIGNORE);
     files.insert(format!("{proj}/MANIFEST.in", proj=project_name), file_constants::FILE_MANIFEST);
     files.insert(format!("{proj}/setup.py", proj=project_name), file_constants::FILE_SETUP_PY);
+    files.insert(format!("{proj}/src/{proj}/main.py", proj=project_name), file_constants::FILE_MAIN_PY);
+    files.insert(format!("{proj}/tests/test.py", proj=project_name), file_constants::FILE_TEST);
 
     // Create files with constant content
     for (file, content) in &files {
@@ -89,7 +91,6 @@ fn setup_files(project_name: &str) {
     fs::File::create(format!("{proj}/LICENSE", proj=project_name)).unwrap();
     fs::File::create(format!("{proj}/requirements.txt", proj=project_name)).unwrap();
     fs::File::create(format!("{proj}/tests/__init__.py", proj=project_name)).unwrap();
-    fs::File::create(format!("{proj}/src/{proj}/main.py", proj=project_name)).unwrap();
 }
 
 /// Create special files with content based on the project
