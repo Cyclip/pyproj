@@ -1,13 +1,9 @@
 mod constants;
+mod create; // create subcommand
 
 use std::option::Option::{Some, None};
 use std::env;
 use std::result::Result;
-std::path::Path;
-
-fn create_project<'a>(project_name: &'a str) -> Result<&'a str, &'a str> {
-    Result::Ok(project_name)
-}
 
 /// Identify whether a string is valid and has no conflicting names
 fn validate_name(s: &str) -> bool {
@@ -26,7 +22,7 @@ fn cmd_create(args: &mut std::env::Args) {
         Some(val) => {
             let val = val.as_str();
             if validate_name(&val) {
-                match create_project(&val) {
+                match create::create_project(&val) {
                     Result::Ok(proj_name) => {println!("Successfully created project at ./{}", proj_name);},
                     Result::Err(err) => {println!("Error while creating project: {}", err);}
                 }
