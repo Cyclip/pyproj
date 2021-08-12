@@ -46,24 +46,19 @@ fn cmd_clean(args: &mut std::env::Args) {
         }
     }
 
-
-    let project_name = match args.next() {
-        Some(val) => val,
-        None => {
-            println!("Missing argument project_name");
-            return;
-        }
+    // Make sure it has a src/ folder
+    match validate_env() {
+        Ok(_) => {},
+        Err(x) => [
+            println!("Current working directory is not valid: {}", x);
+        ]
     };
-
-    let project_name = project_name.as_str();
 
     // Walk through the directory and remove cache directories
     let mut explorer: Explorer = Explorer::new(10u32);
     
     let mut path = PathBuf::new();
-    path.push(
-        format!("{}/src", project_name)
-    );
+    path.push("src");
 
     explorer.explore(
         &path,
@@ -109,5 +104,12 @@ fn validate_name(s: &str) -> bool {
         false
     } else {
         true
+    }
+}
+
+fn validate_env() -> Result<()> {
+    match std::path::Path::new("src").exists() {
+        true => Ok(()),
+        false => Err("./src does not exist")
     }
 }
