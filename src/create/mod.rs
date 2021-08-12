@@ -218,7 +218,7 @@ fn input(prefix: &str) -> String {
 fn get_py_ver() -> String {
     let output = match Command::new("cmd").args(&["/c", "python --version"]).output() {
         Ok(x) => {String::from_utf8(x.stdout).unwrap()},
-        Err(x) => {String::from("err")}
+        Err(_) => {String::from("err")}
     };
 
     let split = match output.split(" ").nth(1) {
