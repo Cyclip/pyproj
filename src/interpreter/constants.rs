@@ -2,13 +2,14 @@
 // The module filename and the pip install packag name
 // may be different, so refer to this to ensrue that
 // most modules are detected properly.
-pub const COMMON_MODS: [[&str; 2]; 6] = [
+pub const COMMON_MODS: [[&str; 2]; 7] = [
     ["flask", "Flask"],
     ["bs4", "beautifulsoup4"],
     ["flask_cors", "Flask-Cors"],
     ["flask_discord", "Flask-Discord"],
     ["pyqt", "PyQt"],
     ["pyqt5", "PyQt5"],
+    ["dotenv", "python-dotenv"],
 ];
 
 // Built in python modules
