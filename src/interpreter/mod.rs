@@ -9,13 +9,13 @@ use std::io::{self, BufReader, BufRead};
 use std::fs::File;
 
 /// Parse python files
-pub struct Parser {
-    path: &'static Path
+pub struct Parser<'a> {
+    path: &'a Path
 }
 
-impl Parser {
+impl<'a> Parser<'a> {
     /// Static method to create a new parser for a single file
-    pub fn new(path: &'static Path) -> Parser {
+    pub fn new(path: &Path) -> Parser {
         Parser {
             path,
         }

@@ -8,7 +8,7 @@ use std::option::Option::{Some, None};
 use std::env::{args, Args};
 use std::result::Result;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use explorer::Explorer;
 
@@ -40,7 +40,7 @@ fn main() {
 
 /// Subcommand to build certain files
 /// (requirements.txt, etc.)
-fn cmd_build(args: &mut Args)  {
+fn cmd_build<'a>(_args: &mut Args)  {
     fn is_py(x: &PathBuf) -> bool {
         match x.extension() {
             Some(ext) => {
@@ -69,14 +69,46 @@ fn cmd_build(args: &mut Args)  {
 
     explorer.explore(&path, &is_py, 0u32).unwrap();
 
-    let py_files: Vec<String> = explorer.results;
-
     // Get all modules in each file
+    let mut modules: Vec<String> = Vec::new();
+
+    for file in explorer.results {
+        // Read through all lines and find import statements
+        //let parser = ;
+
+        for line in interpreter::Parser::new(&Path::new(&file)).lines() {
+            let unwrapped = &line.unwrap();
+
+            if interpreter::Parser::is_import(unwrapped) {
+                // Find the module
+                match interpreter::Parser::get_import_module(unwrapped) {
+                    Some(mut m) => {modules.append(&mut m);},
+                    None => {},
+                }
+            }
+        }
+    }
     
+    // Get versions for each module
+    let versions = interpreter::Parser::with_versions(&modules);
+
+    // Build final requirements.txt string
+    let mut requirements_str = String::new();
+
+    for (module, version) in versions.iter() {
+        requirements_str.push_str(
+            &format!("{}=={}", module, version)
+        );
+    }
+
+    match fs::write("requirements.txt", requirements_str) {
+        Ok(_) => {println!("Successfully updated requirements.txt");},
+        Err(e) => {println!("Error while writing to requirements.txt: {}", e);}
+    };
 }
 
 /// Subcommand to clean cache and stuff
-fn cmd_clean(args: &mut Args) {
+fn cmd_clean(_args: &mut Args) {
     /// Check if a file/dir is removable
     fn is_removable(x: &PathBuf) -> bool {
         let x = x
