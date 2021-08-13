@@ -71,6 +71,7 @@ fn cmd_build<'a>(_args: &mut Args)  {
 
     // Get all modules in each file
     let mut modules: Vec<String> = Vec::new();
+    let py_files = vec_to_filenames(&explorer.results);
 
     for file in explorer.results {
         // Read through all lines and find import statements
@@ -82,7 +83,10 @@ fn cmd_build<'a>(_args: &mut Args)  {
             if interpreter::Parser::is_import(unwrapped) {
                 // Find the module
                 match interpreter::Parser::get_import_module(unwrapped) {
-                    Some(mut m) => {modules.append(&mut m);},
+                    Some(mut m) => {
+                        m.retain(|i| !py_files.iter().any(|x| x == i));
+                        modules.append(&mut m);
+                    },
                     None => {},
                 }
             }
@@ -183,9 +187,26 @@ fn validate_name(s: &str) -> bool {
     }
 }
 
+/// Ensure the current environment has a src file
 fn validate_env() -> Result<(), &'static str> {
     match std::path::Path::new("src").exists() {
         true => Ok(()),
         false => Err("./src does not exist")
     }
+}
+
+/// Get filenames of a vector of .py paths
+fn vec_to_filenames(v: &Vec<String>) -> Vec<String> {
+    let mut n: Vec<String> = Vec::new();
+
+    for i in v {
+        let split: String = i
+            .split("\\")
+            .filter(|i| i.ends_with(".py"))
+            .map(|i| i.to_string().replace(".py", ""))
+            .collect();
+        n.push(split);
+    }
+
+    n
 }
