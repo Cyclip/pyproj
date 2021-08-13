@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 mod constants;
 mod explorer; // explore directories
 
@@ -29,12 +32,28 @@ fn main() {
                 "build" => {
                     // Build requirements
                     cmd_build(&mut args);
+                },
+                "help" => {
+                    // Give help
+                    cmd_help();
                 }
 
-                _ => {println!("Unknown subcommand {}", val)}
+                _ => {
+                    println!("Unknown subcommand {}\n", val);
+                    cmd_help();
+                }
             }
         },
-        None => {println!("No arguments provided");}
+        None => {cmd_help();},
+    }
+}
+
+/// Subcommand to display help
+fn cmd_help() {
+    println!("Python project manager created with Rust.\nYou may need to cd into your projects to use most commands.\nCommands:");
+    for (k, v) in constants::COMMANDS.iter() {
+        println!("\t{cmd}\t\t{desc}\n\t\t\tUsage: {usage}\n",
+                cmd=k, desc=v[0], usage=v[1]);
     }
 }
 
@@ -94,7 +113,6 @@ fn cmd_build<'a>(_args: &mut Args)  {
     }
     
     // Get versions for each module
-    let parser = interpreter::Parser::new(Path::new(""));
     let versions = interpreter::Parser::with_versions(&modules);
 
     // Build final requirements.txt string
@@ -156,7 +174,7 @@ fn cmd_clean(_args: &mut Args) {
 
 /// Subcommand to create a new project
 fn cmd_create(args: &mut Args) {
-    let project_name = match args.next() {
+    match args.next() {
         Some(val) => {
             let val = val.as_str();
             if validate_name(&val) {

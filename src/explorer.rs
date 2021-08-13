@@ -32,8 +32,4 @@ impl Explorer {
 
         Ok(())
     }
-
-    pub fn clear(&mut self) {
-        self.results = Vec::new();
-    }
 }
