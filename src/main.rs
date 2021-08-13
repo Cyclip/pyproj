@@ -1,9 +1,11 @@
 mod constants;
-mod create; // create subcommand
 mod explorer; // explore directories
 
+mod create; // create subcommand
+mod interpreter; // interpret py files
+
 use std::option::Option::{Some, None};
-use std::env;
+use std::env::{args, Args};
 use std::result::Result;
 use std::fs;
 use std::path::PathBuf;
@@ -11,7 +13,7 @@ use std::path::PathBuf;
 use explorer::Explorer;
 
 fn main() {
-    let mut args = env::args();
+    let mut args = args();
     args.next();
     match args.next() {
         Some(val) => {
@@ -23,6 +25,10 @@ fn main() {
                 "clean" => {
                     // Clean directory (cache, build, etc.)
                     cmd_clean(&mut args);
+                },
+                "build" => {
+                    // Build requirements
+                    cmd_build(&mut args);
                 }
 
                 _ => {println!("Unknown subcommand {}", val)}
@@ -32,8 +38,45 @@ fn main() {
     }
 }
 
+/// Subcommand to build certain files
+/// (requirements.txt, etc.)
+fn cmd_build(args: &mut Args)  {
+    fn is_py(x: &PathBuf) -> bool {
+        match x.extension() {
+            Some(ext) => {
+                match ext.to_str().unwrap() {
+                    "py" => true,
+                    _ => false,
+                }
+            },
+            None => false,
+        }
+    }
+
+    // Make sure the env is valid
+    match validate_env() {
+        Ok(_) => {},
+        Err(x) => {
+            println!("Current working directory is not valid: {}", x);
+            return;
+        }
+    };
+
+    // Get all python files
+    let mut explorer = Explorer::new(10u32);
+    let mut path = PathBuf::new();
+    path.push("src");
+
+    explorer.explore(&path, &is_py, 0u32).unwrap();
+
+    let py_files: Vec<String> = explorer.results;
+
+    // Get all modules in each file
+    
+}
+
 /// Subcommand to clean cache and stuff
-fn cmd_clean(args: &mut std::env::Args) {
+fn cmd_clean(args: &mut Args) {
     /// Check if a file/dir is removable
     fn is_removable(x: &PathBuf) -> bool {
         let x = x
@@ -46,12 +89,13 @@ fn cmd_clean(args: &mut std::env::Args) {
         }
     }
 
-    // Make sure it has a src/ folder
+    // Make sure the env is valid
     match validate_env() {
         Ok(_) => {},
-        Err(x) => [
+        Err(x) => {
             println!("Current working directory is not valid: {}", x);
-        ]
+            return;
+        }
     };
 
     // Walk through the directory and remove cache directories
@@ -74,7 +118,7 @@ fn cmd_clean(args: &mut std::env::Args) {
 }
 
 /// Subcommand to create a new project
-fn cmd_create(args: &mut std::env::Args) {
+fn cmd_create(args: &mut Args) {
     let project_name = match args.next() {
         Some(val) => {
             let val = val.as_str();
@@ -107,7 +151,7 @@ fn validate_name(s: &str) -> bool {
     }
 }
 
-fn validate_env() -> Result<()> {
+fn validate_env() -> Result<(), &'static str> {
     match std::path::Path::new("src").exists() {
         true => Ok(()),
         false => Err("./src does not exist")

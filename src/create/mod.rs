@@ -1,3 +1,5 @@
+//! Handle project creation
+
 mod file_constants;
 
 use std::process::Command;
