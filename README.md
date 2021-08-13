@@ -59,8 +59,6 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
 pyproj is a Rust-based project manager designed to automate and speed up your Python projects. With this tool, you can set up a git-ready project directory within seconds to get straight to programming. Its use extends to automatically generating `requirements.txt` files, cleaning cache, easily run tests and more. pyproj was designed to be easy, simple and quick to use, and in the future allow you to tailor project generation to uses such as Machine Learning, Discord bots, etc.
 
 A list of commonly used resources that I find helpful are listed in the acknowledgements.
