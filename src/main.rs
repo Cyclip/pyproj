@@ -84,7 +84,7 @@ fn cmd_build<'a>(_args: &mut Args)  {
                 // Find the module
                 match interpreter::Parser::get_import_module(unwrapped) {
                     Some(mut m) => {
-                        m.retain(|i| !py_files.iter().any(|x| x == i));
+                        m.retain(|i| !py_files.iter().any(|x| x == i) && !interpreter::Parser::is_built_in(i));
                         modules.append(&mut m);
                     },
                     None => {},
@@ -94,6 +94,7 @@ fn cmd_build<'a>(_args: &mut Args)  {
     }
     
     // Get versions for each module
+    let parser = interpreter::Parser::new(Path::new(""));
     let versions = interpreter::Parser::with_versions(&modules);
 
     // Build final requirements.txt string
@@ -101,7 +102,7 @@ fn cmd_build<'a>(_args: &mut Args)  {
 
     for (module, version) in versions.iter() {
         requirements_str.push_str(
-            &format!("{}=={}", module, version)
+            &format!("{}=={}\n", module, version)
         );
     }
 

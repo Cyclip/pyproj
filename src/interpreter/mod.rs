@@ -1,5 +1,7 @@
 //! Read and interpret Python (.py) files
 
+mod constants;
+
 use std::option::Option::{self, Some, None};
 
 use std::collections::HashMap;
@@ -10,7 +12,7 @@ use std::fs::File;
 
 /// Parse python files
 pub struct Parser<'a> {
-    path: &'a Path
+    path: &'a Path,
 }
 
 impl<'a> Parser<'a> {
@@ -25,6 +27,15 @@ impl<'a> Parser<'a> {
     pub fn lines(&self) -> io::Lines<io::BufReader<File>> {
         let file = File::open(self.path).unwrap();
         BufReader::new(file).lines()
+    }
+
+    /// Static method to identify whether a module is built-in
+    pub fn is_built_in(module: &String) -> bool {
+        constants::BUILTIN_MODULES
+            .iter()
+            .any(
+                |&x| x == module
+            )
     }
 
     /// Static method to identify whether a line is an import or not
@@ -89,7 +100,8 @@ impl<'a> Parser<'a> {
         let mut modules_ver: HashMap<String, String> = HashMap::new();
 
         for m in modules {
-            let ver = match installed_modules.get(m) {
+            let m_ = &Parser::convert_common_mods(m);
+            let ver = match installed_modules.get(m_) {
                 Some(v) => v,
                 None => {
                     println!("WARNING: Couldn't identify version for module `{}`", m);
@@ -97,7 +109,7 @@ impl<'a> Parser<'a> {
                 },
             };
 
-            modules_ver.insert(m.clone(), ver.clone());
+            modules_ver.insert(m_.clone(), ver.clone());
         }
 
         modules_ver
@@ -115,7 +127,9 @@ impl<'a> Parser<'a> {
         for module in &list {
             let mut split = module.split("==");
             let mod_name = match split.next() {
-                Some(n) => n.to_string(),
+                Some(n) => {
+                    n.to_string()
+                },
                 None => {continue;}
             };
 
@@ -128,6 +142,16 @@ impl<'a> Parser<'a> {
         }
 
         modules
+    }
+
+    fn convert_common_mods(s: &String) -> String {
+        for i in constants::COMMON_MODS {
+            if i[0] == s {
+                return i[1].to_owned();
+            }
+        }
+
+        return s.to_owned();
     }
 
     /// Static method to shorten a module name to its module
