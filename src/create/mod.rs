@@ -182,7 +182,7 @@ python -m pip install -r requirements.txt
 ├─── docs					Documentation detailing how to use {proj}
 ├─── examples				Example usage
 ├─── src					Source code for use in this project
-│    └───sysa				
+│    └───{proj}				
 │        └─── main.py		Main python file
 │
 └─── tests					All tests (unit, etc.)
