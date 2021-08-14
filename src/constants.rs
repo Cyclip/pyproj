@@ -22,5 +22,9 @@ lazy_static! {
             "Build certain files automatically, such as requirements.txt. [Currently only requirements.txt is supported]", 
             "pyproj build"
         ]),
+        ("test", [
+            "Run unit tests for the project, either a single test or all tests in the ./tests/ folder",
+            "pyproj test <file>"
+        ])
     ].into_iter().collect();
 }

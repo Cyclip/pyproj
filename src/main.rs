@@ -12,6 +12,8 @@ use std::env::{args, Args};
 use std::result::Result;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::{Command, Stdio};
+use std::time::Instant;
 
 use explorer::Explorer;
 
@@ -36,6 +38,10 @@ fn main() {
                 "help" => {
                     // Give help
                     cmd_help();
+                },
+                "test" => {
+                    // Run unit tests
+                    cmd_test(&mut args);
                 }
 
                 _ => {
@@ -46,6 +52,46 @@ fn main() {
         },
         None => {cmd_help();},
     }
+}
+
+/// Subcommand to run unit tests
+fn cmd_test(args: &mut Args) {
+    let target = match args.next() {
+        Some(f) => {
+            if !f.ends_with(".py") {
+                format!("tests/{}.py", f)
+            } else {
+                format!("tests/{}", f)
+            }
+        },
+        None => String::from("tests")
+    };
+
+    let command = format!("python -m unittest {}", target);
+
+    // Create a new command process to run unit tests
+    println!("Running unit tests..");
+    
+    let start = Instant::now();
+
+    let process = Command::new("cmd")
+        .args(&["/c", command.as_str()])
+        .stdout(Stdio::inherit())
+        .status()
+        .expect("failed to execute process");
+
+    let elapsed = start.elapsed().as_millis();
+
+    match process.success() {
+        true => println!("\n------------- SUCCESSFUL -------------"),
+        false => println!("\n------------ UNSUCCESSFUL ------------"),
+    };
+
+    println!(
+        "Elapsed {elapsed}ms\nCompleted with exit code {code}", 
+        elapsed=elapsed, 
+        code=process.code().unwrap()
+    );
 }
 
 /// Subcommand to display help

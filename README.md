@@ -119,6 +119,13 @@ Cleans all unused files and folders, including `__pycache__`
 Builds certain special files including `requirements.txt`
 Example: `pyproj build`
 
+### test
+Run unit tests for the project, either a single test or all tests in the ./tests/ folder.
+Examples
+- `pyproj test`
+- `pyproj test test_file`
+- `pyproj test test_file.py`
+
 ## Usage
 
 Let's make a project to print the user's IP address and exit.
